@@ -145,11 +145,15 @@ def render(data):
 - Building with **Java, Spring Boot, PostgreSQL, React, and React Native / Expo**.
 - Exploring practical AI features, maintainable architecture, and API performance.
 
-### Tech Sphere
+### 3D Contribution Tower
 
-<p align="center">
-  <img src="./assets/tech-sphere.svg" alt="Nguyen Duc Anh — rotating Java, Spring, PostgreSQL, React, TypeScript, Docker and Expo sphere" width="100%" />
-</p>
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./profile-3d-contrib/profile-night-rainbow.svg">
+  <source media="(prefers-color-scheme: light)" srcset="./profile-3d-contrib/profile-season-animate.svg">
+  <img src="./profile-3d-contrib/profile-night-rainbow.svg" alt="Nguyen Duc Anh — GitHub contributions as a 3D skyline" width="100%">
+</picture>
+
+<sub>Each tower represents daily GitHub contribution activity over the last year.</sub>
 
 <details>
 <summary>Language breakdown</summary>
@@ -175,7 +179,7 @@ Spring Security · JWT · JPA / Hibernate · Docker · Flyway · GitHub Actions 
 
 <sub>The pulse uses GitHub contribution counts, including commits, pull requests, reviews, and issues. One beat per day; beat height reflects activity. Updated daily · {now}.</sub>
 
-<sub>Visual inspiration: [Tech Sphere](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/03-3d-immersive/tech-sphere) · [Activity Pulse](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/05-dashboard/activity-pulse).</sub>
+<sub>Visual inspiration: [3D Contribution Tower](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/03-3d-immersive/3d-contribution-tower) · [Activity Pulse](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/05-dashboard/activity-pulse).</sub>
 '''
     Path('README.md').write_text(readme,encoding='utf-8')
 
