@@ -79,7 +79,53 @@ def fetch():
                 top_count=top[1], total=calendar['totalContributions'], weeks=calendar['weeks'],
                 projects=sorted((r for r in repos if not r['isFork']), key=lambda r: (-r['stargazerCount'], r['name'].lower()))[:4])
 
+
+def charts(data):
+    """Generate native Mermaid charts without external images."""
+    days = [day for week in data['weeks'] for day in week['contributionDays']]
+    latest = max((dt.date.fromisoformat(day['date']) for day in days), default=dt.date.today())
+    end_index = latest.year * 12 + latest.month - 1
+    month_keys = [f'{index // 12:04d}-{index % 12 + 1:02d}' for index in range(end_index - 11, end_index + 1)]
+    months = {key: 0 for key in month_keys}
+    weekdays = [0] * 7
+    for day in days:
+        month = day['date'][:7]
+        if month in months:
+            months[month] += day['contributionCount']
+        weekdays[(day['weekday'] + 6) % 7] += day['contributionCount']
+    lang = [(name, pct) for name, pct, _ in data['languages'] if round(pct, 2) > 0]
+    other = max(0, 100 - sum(pct for _, pct in lang))
+    if round(other, 2) > 0:
+        lang.append(('Other', other))
+    pie_lines = ['pie', '    title Language Distribution']
+    pie_lines += ['    ' + json.dumps(name) + ' : ' + f'{pct:.2f}' for name, pct in lang]
+    pie = '\n'.join(pie_lines) if lang else ''
+    labels = [dt.date.fromisoformat(key + '-01').strftime('%b %y') for key in month_keys]
+    bar = '\n'.join([
+        'xychart-beta',
+        '    title "Contributions by Month"',
+        '    x-axis [' + ', '.join(json.dumps(label) for label in labels) + ']',
+        '    y-axis "Contributions" 0 --> ' + str(max(10, max(months.values(), default=0) + 10)),
+        '    bar [' + ', '.join(map(str, months.values())) + ']',
+    ])
+    week = '\n'.join([
+        'xychart-beta',
+        '    title "Activity by Weekday"',
+        '    x-axis ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]',
+        '    y-axis "Contributions" 0 --> ' + str(max(10, max(weekdays) + 10)),
+        '    bar [' + ', '.join(map(str, weekdays)) + ']',
+    ])
+    fenced = lambda source: chr(96)*3 + 'mermaid\n' + source + '\n' + chr(96)*3
+    return dict(language=fenced(pie) if pie else 'No public language data yet.',
+                monthly=fenced(bar), weekday=fenced(week),
+                monthly_table='\n'.join('| ' + label + ' | ' + str(value) + ' |' for label, value in zip(labels, months.values())),
+                weekly_table='\n'.join('| ' + label + ' | ' + str(value) + ' |' for label, value in zip(['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], weekdays)),
+                active_days=sum(day['contributionCount'] > 0 for day in days),
+                best_day=max((day['contributionCount'] for day in days), default=0))
+
+
 def render(data):
+    chart = charts(data)
     esc = lambda value: html.escape(str(value), quote=True)
     projects = []
     for repo in data['projects']:
@@ -143,6 +189,10 @@ I work across backend, web, and mobile, with a focus on Java and Spring Boot. I 
 | `Spring Security` · `JWT` | `React Native` · `Expo` | `Docker` · `GitHub Actions` |
 | `JPA / Hibernate` · `REST` | `TanStack Query` · `Zustand` | `Vercel` · `Render` |
 
+### Language Distribution
+
+{chart['language']}
+
 <details>
 <summary><strong>▸ Explore language breakdown</strong></summary>
 
@@ -180,11 +230,40 @@ I work across backend, web, and mobile, with a focus on Java and Spring Boot. I 
 
 <table>
 <tr>
-<td width="33%" align="center"><h3>🔥 {data['streak']} days</h3><sub>CURRENT STREAK</sub></td>
+<td width="33%" align="center"><h3>⚡ {chart['active_days']}</h3><sub>ACTIVE DAYS / YEAR</sub></td>
 <td width="33%" align="center"><h3>📅 {data['top']}</h3><sub>TOP CONTRIBUTION DAY</sub></td>
-<td width="33%" align="center"><h3>🤝 {data['followers']}</h3><sub>FOLLOWERS</sub></td>
+<td width="33%" align="center"><h3>🏆 {chart['best_day']}</h3><sub>BEST DAY / CONTRIBUTIONS</sub></td>
 </tr>
 </table>
+
+### Contribution Trend
+
+{chart['monthly']}
+
+<sub>The last 12 calendar months. The current month may be incomplete.</sub>
+
+### Weekly Rhythm
+
+{chart['weekday']}
+
+<sub>Total contributions per weekday over the last year.</sub>
+
+<details>
+<summary><strong>▸ View chart data</strong></summary>
+
+#### Contributions by month
+
+| Month | Contributions |
+| :--- | ---: |
+{chart['monthly_table']}
+
+#### Contributions by weekday
+
+| Day | Contributions |
+| :--- | ---: |
+{chart['weekly_table']}
+
+</details>
 
 <details>
 <summary><strong>▸ View activity details</strong></summary>
