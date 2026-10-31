@@ -11,9 +11,18 @@
 - Building with **Java, Spring Boot, PostgreSQL, React, and React Native / Expo**.
 - Exploring practical AI features, maintainable architecture, and API performance.
 
-### My stack
+### Tech Sphere
+
+<p align="center">
+  <img src="./assets/tech-sphere.svg" alt="Nguyen Duc Anh — rotating Java, Spring, PostgreSQL, React, TypeScript, Docker and Expo sphere" width="100%" />
+</p>
+
+<details>
+<summary>Language breakdown</summary>
 
 **JavaScript** 40.7% · **TypeScript** 27.9% · **Java** 21.7% · **CSS** 7.4% · **HTML** 1.9%
+
+</details>
 
 <details>
 <summary>More technologies</summary>
@@ -35,4 +44,4 @@ Spring Security · JWT · JPA / Hibernate · Docker · Flyway · GitHub Actions 
 
 <sub>The pulse uses GitHub contribution counts, including commits, pull requests, reviews, and issues. One beat per day; beat height reflects activity. Updated daily · 31 Oct 2026.</sub>
 
-<sub>Visual inspiration: [Activity Pulse](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/05-dashboard/activity-pulse).</sub>
+<sub>Visual inspiration: [Tech Sphere](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/03-3d-immersive/tech-sphere) · [Activity Pulse](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/05-dashboard/activity-pulse).</sub>
