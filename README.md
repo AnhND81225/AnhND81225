@@ -1,92 +1,70 @@
-
-
-<h1 align="center">CheckMyGit</h1>
+<h1 align="center">Hi, I'm Duc Anh 👋</h1>
 
 <p align="center">
-  <strong>Transform any GitHub profile into a stunning portfolio in seconds.</strong>
+  <strong>Backend-focused Full-stack Developer · Java & Spring Boot</strong>
 </p>
 
 <p align="center">
-  <a href="https://checkmygit.com">Live Demo</a> •
-  <a href="#features">Features</a> •
-  <a href="#tech-stack">Tech Stack</a> •
-  <a href="#roadmap">Roadmap</a>
+  Based in Vietnam 🇻🇳 · Studying Software Engineering at FPT University
 </p>
 
----
-
 <p align="center">
-  <img src="src/lib/assets/readme_img.png" alt="CheckMyGit" width="100%" />
+  <a href="https://github.com/AnhND81225?tab=repositories">Projects</a> ·
+  <a href="https://checkmygit.com/AnhND81225?template=bento">Portfolio</a>
 </p>
 
 ---
 
-## Features
+## About Me
 
-- **Instant Generation** — Enter any GitHub username, get a beautiful portfolio
-- **3 Templates** — GitHub-style sidebar, Bento grid, or Minimal CV layout
-- **Contribution Graph** — Full year heatmap visualization
-- **Language Stats** — Donut chart breakdown of your tech stack
-- **Pinned Projects** — Showcase your best repositories
-- **PNG Export** — Download your portfolio as an image
-- **Shareable URLs** — `checkmygit.com/username?template=bento`
-- **No Auth Required** — Fully open source, no sign-up needed
+I build backend services with Java and Spring Boot, and bring them to life with React and React Native.
+
+I'm interested in enterprise software, practical AI features, and turning product ideas into working applications. My focus is on clear APIs, secure access, maintainable code, and reliable performance.
 
 ## Tech Stack
 
-- **Framework:** SvelteKit 2 + Svelte 5 Runes
-- **Styling:** Tailwind CSS 4
-- **API:** GitHub GraphQL + REST fallback
-- **Deployment:** Cloudflare Pages
-- **Export:** html-to-image
+| Area | Technologies |
+| --- | --- |
+| Backend | Java, Spring Boot, Spring Security, JPA / Hibernate |
+| Frontend & Mobile | React, TypeScript, React Native, Expo |
+| Data | PostgreSQL, Flyway |
+| Tools & Delivery | Git, GitHub Actions, Docker, Vercel, Render |
+| API & Security | REST APIs, JWT, Role-Based Access Control |
 
-## Roadmap
+## Selected Projects
 
-- [ ] **Dynamic OG Images** — Satori + Resvg for custom social preview cards
-- [ ] **New Templates** — Developer card, Resume/CV, Portfolio grid
-- [ ] **UI Polish** — Dark/light theme toggle, animation refinements
-- [ ] **PDF Export** — Download portfolio as PDF document
-- [ ] **Custom Themes** — User-defined accent colors and fonts
+### 🧭 travAIy
+A travel assistant that brings trip planning, daily itineraries, budgets, and group coordination into one journey.
 
-## Getting Started
+**Focus:** Personalized planning, AI-assisted itinerary adjustments, and a mobile-first experience.  
+**Stack:** React Native / Expo · Spring Boot · PostgreSQL
 
-1. **Clone the repo**
-   ```bash
-   git clone https://github.com/whoisyurii/checkmygit.git
-   cd checkmygit
-   ```
+### 📚 AI Study Assistant
+A study platform for solving questions from images, explaining solutions step by step, and reviewing learning history.
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+**Focus:** AI integration, authentication, resource ownership, and usage tracking.  
+**Stack:** Java · Spring Boot · React · PostgreSQL
 
-3. **Set up environment variables**
-   ```bash
-   cp .env.example .env
-   ```
-   Then add your GitHub token to `.env`:
-   ```
-   GITHUB_TOKEN=ghp_your_token_here
-   ```
-   > Create a token at [github.com/settings/tokens](https://github.com/settings/tokens) with `read:user` scope. Optional but recommended to avoid rate limits.
+### 🎓 AIVES — AI-powered Viva Exam System
+A system supporting oral exam preparation and management for lecturers and students.
 
-4. **Start the dev server**
-   ```bash
-   npm run dev
-   ```
-   Open [localhost:5173](http://localhost:5173) in your browser.
+**My work:** Frontend features for rubrics, question imports, course materials, and exam configuration.  
+**Stack:** React · TypeScript · TanStack Query · Zustand
 
-## Contributing
+### 👕 FitMe AI
+A personal virtual try-on project exploring how AI can help people preview outfits.
 
-Contributions welcome! Feel free to open issues or submit PRs.
+**Focus:** Virtual fitting, wardrobe experiences, and realistic outfit visualization.
 
-## License
+## Currently Exploring
 
-MIT
+- Building maintainable backend systems with clear module boundaries.
+- Improving API performance through query optimization and caching.
+- Integrating AI with predictable costs and useful product behavior.
+- Developing mobile experiences with React Native and Expo.
 
 ---
 
 <p align="center">
-  Built with SvelteKit & shipped on Cloudflare
+  <a href="https://github.com/AnhND81225?tab=repositories">Explore my repositories →</a>
 </p>
