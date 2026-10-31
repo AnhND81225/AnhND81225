@@ -75,7 +75,9 @@ def fetch():
     top = weekdays.most_common(1)[0] if weekdays else (0,0)
     avatar = ''
     try:
-        avatar = 'data:image/png;base64,' + base64.b64encode(request(user['avatarUrl'])).decode()
+        raw = request(user['avatarUrl'])
+        mime = 'image/jpeg' if raw.startswith(b'\xff\xd8') else 'image/png'
+        avatar = 'data:' + mime + ';base64,' + base64.b64encode(raw).decode()
     except Exception:
         pass
     return dict(name=user['name'] or LOGIN, repos=user['repositories']['totalCount'],
@@ -86,7 +88,7 @@ def fetch():
                 avatar=avatar)
 
 def render(data):
-    out = ['<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="850" viewBox="0 0 1200 850" role="img" aria-labelledby="title desc">',
+    out = ['<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="850" viewBox="0 0 1200 850" role="img" aria-labelledby="title desc">',
            '<title id="title">Nguyen Duc Anh — GitHub Bento Dashboard</title>',
            '<desc id="desc">GitHub profile, public repository statistics, language distribution and contribution calendar.</desc>',
            '<defs><clipPath id="avatar"><circle cx="74" cy="81" r="37"/></clipPath></defs>',
@@ -99,7 +101,7 @@ def render(data):
     rect(606,20,277,104); rect(899,20,281,104)
     rect(606,140,277,104); rect(899,140,281,104)
     if data.get('avatar'):
-        out.append(f'<image href="{html.escape(data["avatar"],quote=True)}" x="37" y="44" width="74" height="74" clip-path="url(#avatar)"/>')
+        out.append(f'<image xlink:href="{html.escape(data["avatar"],quote=True)}" x="37" y="44" width="74" height="74" clip-path="url(#avatar)"/>')
     else:
         out.append('<circle cx="74" cy="81" r="37" fill="#162726"/>')
         text(74,91,'DA',26,'#2dd4bf',700,'middle')
@@ -137,7 +139,7 @@ def render(data):
     rect(20,510,1160,233)
     weeks = data.get('weeks', [])
     if weeks:
-        colors = {'NONE':'#171c23','FIRST_QUARTILE':'#776400','SECOND_QUARTILE':'#b39b00','THIRD_QUARTILE':'#e8c500','FOURTH_QUARTILE':'#fff04a'}
+        colors = {'NONE':'#171c23','FIRST_QUARTILE':'#dbb900','SECOND_QUARTILE':'#f2ce00','THIRD_QUARTILE':'#ffe21c','FOURTH_QUARTILE':'#fff04a'}
         last_month = None
         for col,week in enumerate(weeks):
             for day in week['contributionDays']:
