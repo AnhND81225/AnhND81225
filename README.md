@@ -38,6 +38,19 @@ I work across backend, web, and mobile, with a focus on Java and Spring Boot. I 
 | `Spring Security` · `JWT` | `React Native` · `Expo` | `Docker` · `GitHub Actions` |
 | `JPA / Hibernate` · `REST` | `TanStack Query` · `Zustand` | `Vercel` · `Render` |
 
+### Language Distribution
+
+```mermaid
+pie
+    title Language Distribution
+    "JavaScript" : 40.66
+    "TypeScript" : 27.94
+    "Java" : 21.67
+    "CSS" : 7.45
+    "HTML" : 1.89
+    "Other" : 0.40
+```
+
 <details>
 <summary><strong>▸ Explore language breakdown</strong></summary>
 
@@ -82,11 +95,69 @@ I work across backend, web, and mobile, with a focus on Java and Spring Boot. I 
 
 <table>
 <tr>
-<td width="33%" align="center"><h3>🔥 6 days</h3><sub>CURRENT STREAK</sub></td>
+<td width="33%" align="center"><h3>⚡ 73</h3><sub>ACTIVE DAYS / YEAR</sub></td>
 <td width="33%" align="center"><h3>📅 Tue</h3><sub>TOP CONTRIBUTION DAY</sub></td>
-<td width="33%" align="center"><h3>🤝 1</h3><sub>FOLLOWERS</sub></td>
+<td width="33%" align="center"><h3>🏆 51</h3><sub>BEST DAY / CONTRIBUTIONS</sub></td>
 </tr>
 </table>
+
+### Contribution Trend
+
+```mermaid
+xychart-beta
+    title "Contributions by Month"
+    x-axis ["Nov 25", "Dec 25", "Jan 26", "Feb 26", "Mar 26", "Apr 26", "May 26", "Jun 26", "Jul 26", "Aug 26", "Sep 26", "Oct 26"]
+    y-axis "Contributions" 0 --> 248
+    bar [0, 0, 11, 16, 82, 3, 1, 30, 46, 119, 22, 238]
+```
+
+<sub>The last 12 calendar months. The current month may be incomplete.</sub>
+
+### Weekly Rhythm
+
+```mermaid
+xychart-beta
+    title "Activity by Weekday"
+    x-axis ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    y-axis "Contributions" 0 --> 147
+    bar [61, 137, 97, 53, 77, 106, 37]
+```
+
+<sub>Total contributions per weekday over the last year.</sub>
+
+<details>
+<summary><strong>▸ View chart data</strong></summary>
+
+#### Contributions by month
+
+| Month | Contributions |
+| :--- | ---: |
+| Nov 25 | 0 |
+| Dec 25 | 0 |
+| Jan 26 | 11 |
+| Feb 26 | 16 |
+| Mar 26 | 82 |
+| Apr 26 | 3 |
+| May 26 | 1 |
+| Jun 26 | 30 |
+| Jul 26 | 46 |
+| Aug 26 | 119 |
+| Sep 26 | 22 |
+| Oct 26 | 238 |
+
+#### Contributions by weekday
+
+| Day | Contributions |
+| :--- | ---: |
+| Mon | 61 |
+| Tue | 137 |
+| Wed | 97 |
+| Thu | 53 |
+| Fri | 77 |
+| Sat | 106 |
+| Sun | 37 |
+
+</details>
 
 <details>
 <summary><strong>▸ View activity details</strong></summary>
@@ -102,4 +173,4 @@ I work across backend, web, and mobile, with a focus on Java and Spring Boot. I 
 
 ---
 
-<p align="center"><a href="https://github.com/AnhND81225?tab=repositories">Explore my work ↗</a><br><sub>Public GitHub data · Updated 31 Oct 2026 · 08:51 UTC</sub></p>
+<p align="center"><a href="https://github.com/AnhND81225?tab=repositories">Explore my work ↗</a><br><sub>Public GitHub data · Updated 31 Oct 2026 · 08:56 UTC</sub></p>
