@@ -1,0 +1,42 @@
+name: Update Bento Profile
+
+on:
+  schedule:
+    - cron: '17 1 * * *'
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - README.md
+      - scripts/render_profile.py
+      - .github/workflows/profile-bento.yml
+
+permissions:
+  contents: write
+
+concurrency:
+  group: profile-bento
+  cancel-in-progress: false
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Generate dashboard from public GitHub data
+        run: python scripts/render_profile.py
+        env:
+          GH_TOKEN: ${{ github.token }}
+      - name: Commit refreshed dashboard
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add assets/github-bento.svg
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh Bento profile statistics"
+            git push
+          fi
