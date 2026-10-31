@@ -1,5 +1,4 @@
-"""Render a self-contained Bento profile SVG using public GitHub data."""
-import base64
+"""Build a native, image-free GitHub profile README from public data."""
 import collections
 import datetime as dt
 import html
@@ -21,7 +20,7 @@ def request(url, payload=None):
 def fetch():
     query = '''query($login:String!, $cursor:String) {
       user(login:$login) {
-        name login avatarUrl createdAt followers { totalCount }
+        name login createdAt followers { totalCount }
         repositories(first:100, after:$cursor, privacy:PUBLIC, ownerAffiliations:OWNER) {
           totalCount pageInfo { hasNextPage endCursor }
           nodes { name description url stargazerCount isFork
@@ -73,101 +72,139 @@ def fetch():
     for day in days:
         weekdays[day['weekday']] += day['contributionCount']
     top = weekdays.most_common(1)[0] if weekdays else (0,0)
-    avatar = ''
-    try:
-        raw = request(user['avatarUrl'])
-        mime = 'image/jpeg' if raw.startswith(b'\xff\xd8') else 'image/png'
-        avatar = 'data:' + mime + ';base64,' + base64.b64encode(raw).decode()
-    except Exception:
-        pass
     return dict(name=user['name'] or LOGIN, repos=user['repositories']['totalCount'],
                 stars=sum(r['stargazerCount'] for r in repos), followers=user['followers']['totalCount'],
                 years=(dt.date.today()-dt.date.fromisoformat(user['createdAt'][:10])).days//365,
                 languages=lang, streak=streak, top=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][top[0]],
                 top_count=top[1], total=calendar['totalContributions'], weeks=calendar['weeks'],
-                avatar=avatar)
+                projects=sorted((r for r in repos if not r['isFork']), key=lambda r: (-r['stargazerCount'], r['name'].lower()))[:4])
 
 def render(data):
-    out = ['<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1200" height="850" viewBox="0 0 1200 850" role="img" aria-labelledby="title desc">',
-           '<title id="title">Nguyen Duc Anh — GitHub Bento Dashboard</title>',
-           '<desc id="desc">GitHub profile, public repository statistics, language distribution and contribution calendar.</desc>',
-           '<defs><clipPath id="avatar"><circle cx="74" cy="81" r="37"/></clipPath></defs>',
-           '<rect width="1200" height="850" rx="16" fill="#050505"/>']
-    def rect(x,y,w,h,fill='#0b0b0b',stroke='#252525',r=10):
-        out.append(f'<rect x="{x}" y="{y}" width="{w}" height="{h}" rx="{r}" fill="{fill}" stroke="{stroke}"/>')
-    def text(x,y,value,size=16,color='#ededed',weight=400,anchor='start'):
-        out.append(f'<text x="{x}" y="{y}" font-family="Arial,Helvetica,sans-serif" font-size="{size}" fill="{color}" font-weight="{weight}" text-anchor="{anchor}">{html.escape(str(value))}</text>')
-    rect(20,20,570,224)
-    rect(606,20,277,104); rect(899,20,281,104)
-    rect(606,140,277,104); rect(899,140,281,104)
-    if data.get('avatar'):
-        out.append(f'<image xlink:href="{html.escape(data["avatar"],quote=True)}" x="37" y="44" width="74" height="74" clip-path="url(#avatar)"/>')
-    else:
-        out.append('<circle cx="74" cy="81" r="37" fill="#162726"/>')
-        text(74,91,'DA',26,'#2dd4bf',700,'middle')
-    text(130,72,data['name'],25,weight=700)
-    text(130,98,'@'+LOGIN,17,'#969696')
-    x = 44
-    for name,pct,color in data['languages']:
-        w = len(name)*7+24
-        rect(x,138,w,26,'#111519',color,13)
-        text(x+12,156,name,12,color)
-        x += w+8
-    text(44,200,'Backend-focused Full-stack Developer',16)
-    text(44,223,'Java / Spring Boot  ·  React / React Native',13,'#969696')
-    for x,y,value,label,color in [(744,64,data['repos'],'PUBLIC REPOSITORIES','#ededed'),(1039,64,data['stars'],'STARS EARNED','#f5a623'),(744,184,data['followers'],'FOLLOWERS','#2dd4bf'),(1039,184,data['years'],'YEARS ACTIVE','#9257ff')]:
-        text(x,y,value,36,color,700,'middle'); text(x,y+25,label,11,'#969696',anchor='middle')
-    rect(20,260,570,192); rect(606,260,574,192)
-    text(44,295,'Top Languages',15,'#a0a0a0',600)
-    out.append('<circle cx="91" cy="367" r="39" fill="none" stroke="#20252c" stroke-width="14"/>')
-    offset = 0
-    for i,(name,pct,color) in enumerate(data['languages']):
-        length = pct/100*245.044
-        out.append(f'<circle cx="91" cy="367" r="39" fill="none" stroke="{color}" stroke-width="14" stroke-dasharray="{length:.3f} {245.044-length:.3f}" stroke-dashoffset="{-offset:.3f}" transform="rotate(-90 91 367)"/>')
-        offset += length
-        out.append(f'<circle cx="166" cy="{326+i*23}" r="5" fill="{color}"/>')
-        text(180,331+i*23,name,13); text(563,331+i*23,f'{pct:.1f}%',13,'#969696',anchor='end')
-    text(630,295,'Productivity Insights',15,'#a0a0a0',600)
-    rect(630,319,253,106,'#030303','#030303',16)
-    rect(899,319,257,106,'#030303','#030303',16)
-    text(648,348,'CURRENT STREAK',12,'#ff8500',600)
-    text(648,391,str(data['streak'])+' days',26,weight=700)
-    text(917,348,'TOP CONTRIBUTION DAY',12,'#2dd4bf',600)
-    text(917,391,f'{data["top"]} ({data["top_count"]})',26,weight=700)
-    text(20,491,'Contributions',20,weight=700)
-    text(1180,491,f'{data["total"]} in the last year',14,'#a0a0a0',anchor='end')
-    rect(20,510,1160,233)
-    weeks = data.get('weeks', [])
-    if weeks:
-        colors = {'NONE':'#171c23','FIRST_QUARTILE':'#dbb900','SECOND_QUARTILE':'#f2ce00','THIRD_QUARTILE':'#ffe21c','FOURTH_QUARTILE':'#fff04a'}
-        last_month = None
-        for col,week in enumerate(weeks):
-            for day in week['contributionDays']:
-                date = dt.date.fromisoformat(day['date'])
-                if date.day <= 7 and date.month != last_month:
-                    text(73+col*20,537,date.strftime('%b'),10,'#777777'); last_month=date.month
-                x,y=73+col*20,551+day['weekday']*22
-                color=colors.get(day['contributionLevel'],'#171c23')
-                out.append(f'<rect x="{x}" y="{y}" width="17" height="19" rx="4" fill="{color}"><title>{day["date"]}: {day["contributionCount"]} contributions</title></rect>')
-        for row,label in [(1,'Mon'),(3,'Wed'),(5,'Fri')]: text(35,565+row*22,label,10,'#777777')
-    else:
-        text(600,622,'Contribution calendar will appear after the first workflow run.',16,'#969696',anchor='middle')
-    text(36,727,'Last 52 weeks of activity',11,'#777777')
-    text(20,784,'JAVA  /  SPRING BOOT  /  TYPESCRIPT  /  REACT',13,'#2dd4bf',600)
-    text(20,813,'Public GitHub data · Language percentages are based on code bytes in owned, non-fork repositories.',11,'#777777')
-    text(1180,833,'Updated '+dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d UTC'),10,'#777777',anchor='end')
-    out.append('</svg>')
-    Path('assets').mkdir(exist_ok=True)
-    Path('assets/github-bento.svg').write_text('\n'.join(out),encoding='utf-8')
+    esc = lambda value: html.escape(str(value), quote=True)
+    projects = []
+    for repo in data['projects']:
+        desc = (repo.get('description') or 'Explore the source code, documentation, and project structure.')
+        if len(desc) > 140:
+            desc = desc[:137].rsplit(' ', 1)[0] + '…'
+        edges = repo.get('languages', {}).get('edges', [])
+        language = edges[0]['node']['name'] if edges else 'Source code'
+        projects.append(
+            '<td width="50%" valign="top"><h3>↗ <a href="' + esc(repo['url']) + '">' +
+            esc(repo['name']) + '</a></h3><p>' + esc(desc) +
+            '</p><p><code>' + esc(language) + '</code> · ★ ' +
+            str(repo['stargazerCount']) + '</p></td>'
+        )
+    rows = []
+    for i in range(0, len(projects), 2):
+        cells = projects[i:i+2]
+        if len(cells) == 1:
+            cells.append('<td width="50%"></td>')
+        rows.append('<tr>' + ''.join(cells) + '</tr>')
+    project_table = '<table>\n' + '\n'.join(rows) + '\n</table>' if rows else 'Public projects are coming soon.'
+    languages = '\n'.join('| ' + esc(name) + ' | ' + f'{pct:.1f}%' + ' |' for name,pct,_ in data['languages'])
+    now = dt.datetime.now(dt.timezone.utc).strftime('%d %b %Y · %H:%M UTC')
+    readme = f'''<h1 align="center">Nguyen Duc Anh</h1>
+<p align="center"><strong>Backend-focused Full-stack Developer</strong><br>Building useful products with Java, Spring Boot, and React.<br><sub>Vietnam · FPT University</sub></p>
+
+<p align="center">
+  <a href="#about">About</a> &nbsp; / &nbsp;
+  <a href="#toolbox">Toolbox</a> &nbsp; / &nbsp;
+  <a href="#projects">Projects</a> &nbsp; / &nbsp;
+  <a href="#activity">Activity</a>
+</p>
+
+---
+
+<table>
+<tr>
+<td width="25%" align="center"><h2>{data['repos']}</h2><sub>PUBLIC REPOSITORIES</sub></td>
+<td width="25%" align="center"><h2>{data['stars']}</h2><sub>STARS EARNED</sub></td>
+<td width="25%" align="center"><h2>{data['total']}</h2><sub>CONTRIBUTIONS / YEAR</sub></td>
+<td width="25%" align="center"><h2>{data['streak']} days</h2><sub>CURRENT STREAK</sub></td>
+</tr>
+</table>
+
+<h2 id="about">01 &nbsp; About</h2>
+
+I work across backend, web, and mobile, with a focus on Java and Spring Boot. I enjoy turning product ideas into applications with clear APIs, secure access, and maintainable code.
+
+<table>
+<tr>
+<td width="50%" valign="top"><h3>⚙️ Backend &amp; Systems</h3><p>REST APIs, authentication, database design, and performance.</p></td>
+<td width="50%" valign="top"><h3>🧠 AI &amp; Product</h3><p>Practical AI features for learning, travel, and everyday experiences.</p></td>
+</tr>
+</table>
+
+<h2 id="toolbox">02 &nbsp; Toolbox</h2>
+
+| Backend | Frontend & Mobile | Data & Delivery |
+| :--- | :--- | :--- |
+| `Java` · `Spring Boot` | `React` · `TypeScript` | `PostgreSQL` · `Flyway` |
+| `Spring Security` · `JWT` | `React Native` · `Expo` | `Docker` · `GitHub Actions` |
+| `JPA / Hibernate` · `REST` | `TanStack Query` · `Zustand` | `Vercel` · `Render` |
+
+<details>
+<summary><strong>▸ Explore language breakdown</strong></summary>
+
+<br>
+
+| Language | Share of code |
+| :--- | ---: |
+{languages}
+
+<sub>Based on code bytes in owned public repositories, excluding forks. This measures repository composition, rather than proficiency.</sub>
+
+</details>
+
+<h2 id="projects">03 &nbsp; Public Repositories</h2>
+
+{project_table}
+
+<p align="right"><a href="https://github.com/{LOGIN}?tab=repositories">Browse all repositories ↗</a></p>
+
+<details>
+<summary><strong>▸ Explore my product interests</strong></summary>
+
+<br>
+
+| Project | Focus |
+| :--- | :--- |
+| 🧭 **travAIy** | Trip planning, itineraries, budgets, and group coordination. |
+| 📚 **AI Study Assistant** | Learning from images, step-by-step explanations, and study history. |
+| 🎓 **AIVES** | Oral exam management, rubrics, and lecturer workflows. |
+| 👕 **FitMe AI** | Virtual try-on and AI-assisted outfit previews. |
+
+</details>
+
+<h2 id="activity">04 &nbsp; Activity</h2>
+
+<table>
+<tr>
+<td width="33%" align="center"><h3>🔥 {data['streak']} days</h3><sub>CURRENT STREAK</sub></td>
+<td width="33%" align="center"><h3>📅 {data['top']}</h3><sub>TOP CONTRIBUTION DAY</sub></td>
+<td width="33%" align="center"><h3>🤝 {data['followers']}</h3><sub>FOLLOWERS</sub></td>
+</tr>
+</table>
+
+<details>
+<summary><strong>▸ View activity details</strong></summary>
+
+- **{data['total']} contributions** over the last year.
+- **{data['top_count']} contributions** on {data['top']} across the year.
+- **{data['years']} full years** since the account was created.
+- Streak uses GitHub's contribution calendar and allows today to be unfinished.
+
+[View GitHub activity →](https://github.com/{LOGIN}?tab=overview)
+
+</details>
+
+---
+
+<p align="center"><a href="https://github.com/{LOGIN}?tab=repositories">Explore my work ↗</a><br><sub>Public GitHub data · Updated {now}</sub></p>
+'''
+    assert '<img' not in readme and '<svg' not in readme
+    Path('README.md').write_text(readme, encoding='utf-8')
+
 
 if __name__ == '__main__':
-    if os.getenv('PROFILE_PREVIEW'):
-        # Initial snapshot supplied by the profile owner; replaced on the first workflow run.
-        data = dict(name='Nguyen Duc Anh',repos=15,stars=5,followers=1,years=2,
-                    languages=[('TypeScript',38,'#3178c6'),('Java',30,'#b87911'),('JavaScript',25,'#f1e05a'),('CSS',4,'#9257ff'),('HTML',3,'#e34c26')],
-                    streak=6,top='Wed',top_count=52,total=568,weeks=[])
-        # The screenshot does not specify the remaining language shares.
-        data['languages'] = data['languages'][:3]
-    else:
-        data = fetch()
-    render(data)
+    render(fetch())
