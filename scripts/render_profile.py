@@ -82,7 +82,45 @@ def fetch():
 
 
 
+
+def render_tower(data):
+    """Generate an isometric calendar locally, without third-party execution."""
+    import colorsys
+    weeks = data['weeks']
+    maximum = max((d['contributionCount'] for w in weeks for d in w['contributionDays']),default=1) or 1
+    for filename,background,foreground in [('profile-night-rainbow.svg','#090f20','#e2e8f0'),('profile-season-animate.svg','#f8fafc','#0f172a')]:
+        parts=['<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="650" viewBox="0 0 1200 650" role="img" aria-labelledby="tower-title">',
+               '<title id="tower-title">Nguyen Duc Anh — 3D Contribution Tower</title>',
+               f'<rect width="1200" height="650" rx="18" fill="{background}"/>',
+               f'<text x="55" y="52" font-family="Arial,sans-serif" font-size="25" font-weight="700" fill="{foreground}">A year of building.</text>',
+               f'<text x="55" y="80" font-family="monospace" font-size="13" fill="{foreground}">@AnhND81225 · {data["total"]} contributions · last 52 weeks</text>']
+        cells=[(i,day) for i,w in enumerate(weeks) for day in w['contributionDays']]
+        cells.sort(key=lambda cell:cell[0]*6+cell[1]['weekday']*12)
+        for i,day in cells:
+            row=day['weekday'];count=day['contributionCount']
+            x=350+i*13-row*25;y=177+i*6+row*12
+            h=3+(count/maximum)**0.65*105 if count else 2
+            hue=(i/max(1,len(weeks)-1)*0.72+0.35)%1
+            def color(value):
+                if not count:
+                    return '#253147' if background=='#090f20' else '#dbe3eb'
+                rgb=colorsys.hsv_to_rgb(hue,0.65,value)
+                return '#'+''.join(f'{round(c*255):02x}' for c in rgb)
+            title=html.escape(day['date']+': '+str(count)+' contributions')
+            parts.extend([f'<g><title>{title}</title>',
+              f'<polygon points="{x},{y-h} {x+12},{y+5-h} {x-11},{y+16-h} {x-23},{y+11-h}" fill="{color(1)}"/>',
+              f'<polygon points="{x+12},{y+5-h} {x-11},{y+16-h} {x-11},{y+16} {x+12},{y+5}" fill="{color(.6)}"/>',
+              f'<polygon points="{x-23},{y+11-h} {x-11},{y+16-h} {x-11},{y+16} {x-23},{y+11}" fill="{color(.4)}"/>',
+              '</g>'])
+        parts.extend([f'<text x="55" y="589" font-family="monospace" font-size="13" fill="{foreground}">HEIGHT = DAILY CONTRIBUTIONS</text>',
+          f'<text x="55" y="616" font-family="monospace" font-size="11" fill="{foreground}">Public GitHub activity · refreshed daily · each block is one day</text>',
+          '</svg>'])
+        Path('profile-3d-contrib').mkdir(exist_ok=True)
+        Path('profile-3d-contrib',filename).write_text('\n'.join(parts),encoding='utf-8')
+
+
 def render(data):
+    render_tower(data)
     import statistics
     days = sorted([d for w in data['weeks'] for d in w['contributionDays']], key=lambda d:d['date'])[-30:]
     counts = [d['contributionCount'] for d in days]
