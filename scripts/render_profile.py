@@ -81,93 +81,92 @@ def fetch():
 
 
 
+
 def render(data):
-    days = [d for w in data['weeks'] for d in w['contributionDays']]
-    counts = [0]*7
-    for day in days:
-        counts[(day['weekday']+6)%7] += day['contributionCount']
-    def bar(value):
-        filled = round(value/100*25)
-        return '█'*filled + '░'*(25-filled)
-    total = sum(counts) or 1
-    weekly = '\n'.join(f'{name:<12} {count:>5} contributions  {bar(count/total*100)} {count/total*100:6.2f} %'
-                       for name,count in zip(['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'], counts))
-    languages = '\n'.join(f'{name:<14} {bar(pct)} {pct:6.2f} %' for name,pct,_ in data['languages'])
-    now = dt.datetime.now(dt.timezone.utc)
-    start = dt.datetime(now.year,1,1,tzinfo=dt.timezone.utc)
-    end = dt.datetime(now.year+1,1,1,tzinfo=dt.timezone.utc)
-    progress = (now-start)/(end-start)*100
-    esc = lambda value: html.escape(str(value),quote=True)
-    projects = '\n'.join('- <a href="'+esc(r['url'])+'"><strong>'+esc(r['name'])+'</strong></a> — '+esc(r.get('description') or 'Source code and project documentation.') for r in data['projects'])
-    readme = f'''# Hi there, I'm Duc Anh! <img src="https://raw.githubusercontent.com/TheDudeThatCode/TheDudeThatCode/master/Assets/Hi.gif" width="35" alt="Waving hand" />
+    import statistics
+    days = sorted([d for w in data['weeks'] for d in w['contributionDays']], key=lambda d:d['date'])[-30:]
+    counts = [d['contributionCount'] for d in days]
+    peak = max(days,key=lambda d:d['contributionCount']) if days else {'date':'—','contributionCount':0}
+    maximum = max(counts,default=0) or 1
+    # Each beat corresponds to one day; amplitude scales with its actual count.
+    path = ['M 60 220']
+    for i,count in enumerate(counts):
+        x = 60+i*36
+        amplitude = count/maximum*66
+        path.extend([f'L {x+8} 220',f'L {x+15} {220-amplitude:.2f}',
+                     f'L {x+21} {220+amplitude*.42:.2f}',f'L {x+28} 220',f'L {x+36} 220'])
+    trace = ' '.join(path)
+    font = 'font-family="monospace"'
+    svg = [
+      '<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="420" viewBox="0 0 1200 420" role="img" aria-labelledby="title desc">',
+      '<title id="title">Duc Anh — Activity Pulse</title>',
+      '<desc id="desc">Thirty days of GitHub contributions. Each heartbeat represents one day; height scales with the contribution count.</desc>',
+      '<defs><filter id="glow" x="-20%" y="-100%" width="140%" height="300%"><feGaussianBlur stdDeviation="3"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter><linearGradient id="trace"><stop stop-color="#22c55e" stop-opacity=".4"/><stop offset=".5" stop-color="#86efac"/><stop offset="1" stop-color="#22c55e" stop-opacity=".4"/></linearGradient></defs>',
+      '<rect width="1200" height="420" rx="18" fill="#091510"/>',
+      '<rect x="1" y="1" width="1198" height="418" rx="18" fill="none" stroke="#163c29"/>',
+      '<circle cx="64" cy="48" r="4" fill="#4ade80"><animate attributeName="opacity" values="1;.25;1" dur="2s" repeatCount="indefinite"/></circle>',
+      f'<text x="80" y="52" {font} font-size="11" fill="#4ade80" letter-spacing="3">ACTIVITY PULSE</text>',
+      f'<text x="1140" y="52" {font} font-size="11" fill="#719b81" text-anchor="end">LAST {len(days)} DAYS · GITHUB CONTRIBUTIONS</text>',
+      '<text x="60" y="111" font-family="Arial,sans-serif" font-size="29" font-weight="700" fill="#dcfce7">Nguyen Duc Anh</text>',
+      f'<text x="60" y="139" {font} font-size="12" fill="#719b81">@AnhND81225 · Backend-focused Full-stack Developer</text>',
+      '<line x1="60" y1="220" x2="1140" y2="220" stroke="#163c29"/>',
+      f'<path d="{trace}" fill="none" stroke="url(#trace)" stroke-width="2.5" stroke-linejoin="round" filter="url(#glow)"/>',
+      '<circle cx="0" cy="0" r="4" fill="#dcfce7"><animateMotion dur="12s" repeatCount="indefinite" path="'+trace+'"/><animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.03;.97;1" dur="12s" repeatCount="indefinite"/></circle>',
+      '<line x1="60" y1="300" x2="1140" y2="300" stroke="#163c29"/>'
+    ]
+    metrics = [
+      ('PEAK DAY',str(peak['contributionCount']),peak['date']),
+      ('AVERAGE / DAY',f'{statistics.mean(counts) if counts else 0:.1f}','last 30 days'),
+      ('ACTIVE DAYS',str(sum(c>0 for c in counts)),f'of {len(days)} days'),
+      ('CURRENT STREAK',str(data['streak'])+' days','GitHub calendar'),
+      ('CONTRIBUTIONS',str(sum(counts)),'last 30 days')
+    ]
+    for i,(label,value,detail) in enumerate(metrics):
+        x=60+i*222
+        svg.extend([f'<text x="{x}" y="329" {font} font-size="10" fill="#719b81" letter-spacing="1.5">{html.escape(label)}</text>',
+                    f'<text x="{x}" y="360" {font} font-size="23" font-weight="700" fill="#dcfce7">{html.escape(value)}</text>',
+                    f'<text x="{x}" y="383" {font} font-size="11" fill="#719b81">{html.escape(detail)}</text>'])
+    svg.append('</svg>')
+    Path('assets').mkdir(exist_ok=True)
+    Path('assets/activity-pulse.svg').write_text('\n'.join(svg),encoding='utf-8')
+    now=dt.datetime.now(dt.timezone.utc).strftime('%d %b %Y')
+    languages = ' · '.join(f"**{html.escape(name)}** {pct:.1f}%" for name,pct,_ in data['languages'])
+    projects='\n'.join('- <a href="'+html.escape(r['url'],quote=True)+'">'+html.escape(r['name'])+'</a>' for r in data['projects'])
+    readme=f'''<h1 align="center">Nguyen Duc Anh</h1>
+<p align="center"><em>Java & Spring Boot · Web & Mobile · Building useful products</em></p>
 
 <p align="center">
-  <a href="https://github.com/{LOGIN}?tab=repositories">💻 Projects</a> &nbsp; • &nbsp;
-  <a href="#my-github-stats">📊 GitHub Stats</a> &nbsp; • &nbsp;
-  <a href="https://checkmygit.com/{LOGIN}?template=bento">🌐 Portfolio</a>
+  <img src="./assets/activity-pulse.svg" alt="Activity Pulse — 30 days of real GitHub contributions with an animated heartbeat" width="100%" />
 </p>
 
-<p align="center">
-  <img src="https://media.giphy.com/media/SWoSkN6DxTszqIKEqv/giphy.gif" width="500" alt="Developer working at a computer" />
-</p>
+### How I work
 
-### <img src="https://raw.githubusercontent.com/TheDudeThatCode/TheDudeThatCode/master/Assets/Developer.gif" width="45" alt="" /> About Me
+- Backend-focused full-stack developer studying at **FPT University, Vietnam**.
+- Building with **Java, Spring Boot, PostgreSQL, React, and React Native / Expo**.
+- Exploring practical AI features, maintainable architecture, and API performance.
 
-- 🎓 Studying Software Engineering at **FPT University, Vietnam**.
-- 💻 **Backend-focused Full-stack Developer** working with Java and Spring Boot.
-- 🛠️ I build REST APIs, web applications, and mobile experiences.
-- 🧠 Interested in practical AI features, system design, and API performance.
-- 🌱 Exploring **React Native / Expo**, backend architecture, and cloud deployment.
-- 🧭 Product interests: **travAIy**, **AI Study Assistant**, **AIVES**, and **FitMe AI**.
-- 🗣️ Vietnamese / English.
+### My stack
 
-### 🧑‍💻 Tech I Work With
-
-<p align="center">
-  <img src="https://skillicons.dev/icons?i=java,spring,postgres,react,ts,js,html,css,docker,git,githubactions,vite&amp;perline=6" alt="Java, Spring, PostgreSQL, React, TypeScript, JavaScript, HTML, CSS, Docker, Git, GitHub Actions and Vite" />
-</p>
-
----
-
-### My GitHub Stats
-
-| 📦 Public repositories | ⭐ Stars earned | 🔥 Current streak | 🤝 Followers |
-| :---: | :---: | :---: | :---: |
-| **{data['repos']}** | **{data['stars']}** | **{data['streak']} days** | **{data['followers']}** |
-
-📅 **Most contributions on {data['top']}** · **{data['total']} contributions** over the last year
-
-<pre>{weekly}</pre>
-
-💻 **Language Breakdown**
-
-<pre>{esc(languages)}</pre>
-
-<sub>Language shares measure code bytes in owned public repositories, excluding forks. Activity counts use GitHub contributions, including commits, pull requests, reviews, and issues.</sub>
-
-⏳ **Year Progress:** <code>{bar(progress)}</code> **{progress:.2f}%** · {now.strftime('%d %b %Y')}
+{languages}
 
 <details>
-<summary><strong>📈 More activity details</strong></summary>
+<summary>More technologies</summary>
 
-- **{sum(d['contributionCount'] > 0 for d in days)} active days** over the last year.
-- **{max((d['contributionCount'] for d in days),default=0)} contributions** on the busiest day.
-- **{data['top_count']} contributions** on {data['top']} across the year.
-- Current streak follows the GitHub calendar and allows today to be unfinished.
+Spring Security · JWT · JPA / Hibernate · Docker · Flyway · GitHub Actions · TanStack Query · Zustand
 
 </details>
 
----
-
-### 🚀 Explore My Repositories
+### Projects
 
 {projects}
 
-[View all repositories →](https://github.com/{LOGIN}?tab=repositories)
+[All repositories →](https://github.com/{LOGIN}?tab=repositories)
 
 ---
 
-<p align="center"><strong>Learning, building, and improving — one project at a time.</strong><br><sub>Statistics updated daily from public GitHub data · {now.strftime('%d %b %Y %H:%M UTC')}</sub></p>
+<sub>The pulse uses GitHub contribution counts, including commits, pull requests, reviews, and issues. One beat per day; beat height reflects activity. Updated daily · {now}.</sub>
+
+<sub>Visual inspiration: [Activity Pulse](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/05-dashboard/activity-pulse).</sub>
 '''
     Path('README.md').write_text(readme,encoding='utf-8')
 
