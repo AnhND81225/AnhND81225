@@ -24,7 +24,7 @@
 <details>
 <summary>Language breakdown</summary>
 
-**JavaScript** 40.7% · **TypeScript** 27.9% · **Java** 21.7% · **CSS** 7.4% · **HTML** 1.9%
+**TypeScript** 40.4% · **JavaScript** 33.5% · **Java** 17.9% · **CSS** 6.3% · **HTML** 1.6%
 
 </details>
 
@@ -46,6 +46,6 @@ Spring Security · JWT · JPA / Hibernate · Docker · Flyway · GitHub Actions 
 
 ---
 
-<sub>The pulse uses GitHub contribution counts, including commits, pull requests, reviews, and issues. One beat per day; beat height reflects activity. Updated daily · 06 Nov 2026.</sub>
+<sub>The pulse uses GitHub contribution counts, including commits, pull requests, reviews, and issues. One beat per day; beat height reflects activity. Updated daily · 07 Nov 2026.</sub>
 
 <sub>Visual inspiration: [3D Contribution Tower](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/03-3d-immersive/3d-contribution-tower) · [Activity Pulse](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/05-dashboard/activity-pulse).</sub>
