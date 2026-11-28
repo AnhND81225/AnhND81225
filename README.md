@@ -24,7 +24,7 @@
 <details>
 <summary>Language breakdown</summary>
 
-**TypeScript** 41.2% · **JavaScript** 32.8% · **Java** 17.5% · **CSS** 6.8% · **HTML** 1.5%
+**TypeScript** 41.6% · **JavaScript** 29.6% · **Java** 15.8% · **HTML** 6.5% · **CSS** 6.2%
 
 </details>
 
@@ -38,14 +38,14 @@ Spring Security · JWT · JPA / Hibernate · Docker · Flyway · GitHub Actions 
 ### Projects
 
 - <a href="https://github.com/AnhND81225/ai-study-assistant-platform">ai-study-assistant-platform</a>
+- <a href="https://github.com/AnhND81225/BandUp_AI_FE">BandUp_AI_FE</a>
 - <a href="https://github.com/AnhND81225/MusicWeb_Severlet_JSP">MusicWeb_Severlet_JSP</a>
 - <a href="https://github.com/AnhND81225/NguyenDucAnh-AWS">NguyenDucAnh-AWS</a>
-- <a href="https://github.com/AnhND81225/technical-precision-portfolio">technical-precision-portfolio</a>
 
 [All repositories →](https://github.com/AnhND81225?tab=repositories)
 
 ---
 
-<sub>The pulse uses GitHub contribution counts, including commits, pull requests, reviews, and issues. One beat per day; beat height reflects activity. Updated daily · 27 Nov 2026.</sub>
+<sub>The pulse uses GitHub contribution counts, including commits, pull requests, reviews, and issues. One beat per day; beat height reflects activity. Updated daily · 28 Nov 2026.</sub>
 
 <sub>Visual inspiration: [3D Contribution Tower](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/03-3d-immersive/3d-contribution-tower) · [Activity Pulse](https://github.com/beydemirfurkan/awesome-github-profile/tree/main/templates/05-dashboard/activity-pulse).</sub>
